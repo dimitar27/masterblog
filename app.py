@@ -63,6 +63,32 @@ def delete(post_id):
 
     return redirect('/')
 
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    """Handles updating a blog post."""
+    with open("blogposts.json", "r") as fileobj:
+        blog_posts = json.load(fileobj)
+
+    post_to_edit = None
+    for post in blog_posts:
+        if post["id"] == post_id:
+            post_to_edit = post
+            break
+
+    if post_to_edit is None:
+        return "Post not found", 404
+
+    if request.method == 'POST':
+        post_to_edit["author"] = request.form.get("author")
+        post_to_edit["title"] = request.form.get("title")
+        post_to_edit["content"] = request.form.get("content")
+
+        with open("blogposts.json", "w") as fileobj:
+            json.dump(blog_posts, fileobj, indent=4)
+
+        return redirect('/')
+
+    return render_template('update.html', post=post_to_edit)
 
 
 if __name__ == '__main__':

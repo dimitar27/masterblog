@@ -15,6 +15,10 @@
         <p><em>Written by {{ book_details.author }}</em></p>
         <p>{{ book_details.content }}</p>
 
+        <a href="{{ url_for('update', post_id=book_details.id) }}" style="color: blue; text-decoration: none; margin-right: 10px;">
+            Update
+        </a>
+
         <a href="{{ url_for('delete', post_id=book_details.id) }}" style="color: red; text-decoration: none;">
             Delete
         </a>
