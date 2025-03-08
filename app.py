@@ -47,5 +47,23 @@ def add():
     return render_template('add.html')
 
 
+@app.route('/delete/<int:post_id>')
+def delete(post_id):
+    """Deletes a blog post by ID and redirects to the homepage."""
+    with open("blogposts.json", "r") as fileobj:
+        blog_posts = json.load(fileobj)
+
+    updated_blog_posts = []
+    for post in blog_posts:
+        if post["id"] != post_id:
+            updated_blog_posts.append(post)
+
+    with open("blogposts.json", "w") as fileobj:
+        json.dump(updated_blog_posts, fileobj, indent=4)
+
+    return redirect('/')
+
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)
