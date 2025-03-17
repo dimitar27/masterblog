@@ -3,15 +3,22 @@ import json
 
 app = Flask(__name__)
 
-with open("blogposts.json", "r") as fileobj:
-    blog_posts = json.loads(fileobj.read())
+def load_blog_posts():
+    """Reads the blog posts from the JSON file."""
+    with open("blogposts.json", "r") as fileobj:
+        return json.load(fileobj)
+
+
+def save_blog_posts(posts):
+    """Writes the updated list of blog posts to the JSON file."""
+    with open("blogposts.json", "w") as fileobj:
+        json.dump(posts, fileobj, indent=4)
+
 
 @app.route('/')
 def index():
     """Render the homepage with all blog posts."""
-    with open("blogposts.json", "r") as fileobj:
-        posts = json.loads(fileobj.read())
-
+    posts = load_blog_posts()
     return render_template('index.html', posts=posts)
 
 
@@ -19,6 +26,8 @@ def index():
 def add():
     """Handles adding a new blog post."""
     if request.method == 'POST':
+        blog_posts = load_blog_posts()
+
         author = request.form.get("author")
         title = request.form.get("title")
         content = request.form.get("content")
@@ -38,9 +47,7 @@ def add():
         }
 
         blog_posts.append(new_post)
-
-        with open("blogposts.json", "w") as fileobj:
-            json.dump(blog_posts, fileobj, indent=4)
+        save_blog_posts(blog_posts)
 
         return redirect('/')
 
@@ -50,24 +57,22 @@ def add():
 @app.route('/delete/<int:post_id>')
 def delete(post_id):
     """Deletes a blog post by ID and redirects to the homepage."""
-    with open("blogposts.json", "r") as fileobj:
-        blog_posts = json.load(fileobj)
+    blog_posts = load_blog_posts()
 
     updated_blog_posts = []
     for post in blog_posts:
         if post["id"] != post_id:
             updated_blog_posts.append(post)
 
-    with open("blogposts.json", "w") as fileobj:
-        json.dump(updated_blog_posts, fileobj, indent=4)
+    save_blog_posts(updated_blog_posts)
 
     return redirect('/')
+
 
 @app.route('/update/<int:post_id>', methods=['GET', 'POST'])
 def update(post_id):
     """Handles updating a blog post."""
-    with open("blogposts.json", "r") as fileobj:
-        blog_posts = json.load(fileobj)
+    blog_posts = load_blog_posts()
 
     post_to_edit = None
     for post in blog_posts:
@@ -82,9 +87,7 @@ def update(post_id):
         post_to_edit["author"] = request.form.get("author")
         post_to_edit["title"] = request.form.get("title")
         post_to_edit["content"] = request.form.get("content")
-
-        with open("blogposts.json", "w") as fileobj:
-            json.dump(blog_posts, fileobj, indent=4)
+        save_blog_posts(blog_posts)
 
         return redirect('/')
 
